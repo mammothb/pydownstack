@@ -1,6 +1,7 @@
 num_cols: 10
-num_previews: 5
 num_rows: 25
+num_rots: 4
+num_previews: 5
 num_visible_rows: 20
 polyminos:
   J:
@@ -83,6 +84,6 @@ polyminos:
     width: 4
   O:
     coords: [[1, 1], [2, 1], [1, 2], [2, 2]]
-    kicks:
+    kicks: {}
     origin: [3, 18]
     width: 4

@@ -3,13 +3,15 @@ from pathlib import Path
 
 import yaml
 
-from polymino import Mino, Polymino
+from model.polymino import Mino, Polymino
+from model.vector import Vector2D
 
 
 @dataclass
 class Ruleset:
     num_cols: int
     num_rows: int
+    num_rots: int
     num_visible_rows: int
     num_previews: int
     polyminos: dict[Mino, Polymino]
@@ -18,11 +20,11 @@ class Ruleset:
     def mino_types(self) -> list[Mino]:
         return list(self.polyminos.keys())
 
-    def get_coords(self, mino: Mino, rot: int) -> list[list[int]]:
+    def get_coords(self, mino: Mino, rot: int) -> list[Vector2D]:
         poly = self.polyminos[mino]
         return [rotate(coord, poly.width, rot) for coord in poly.coords]
 
-    def get_origin(self, mino: Mino) -> list[int]:
+    def get_origin(self, mino: Mino) -> Vector2D:
         return self.polyminos[mino].origin
 
     def debug_pieces(self) -> None:
@@ -34,7 +36,7 @@ class Ruleset:
                 cells = [[0] * width for _ in range(width)]
                 for coord in poly.coords:
                     coord = rotate(coord, width, rot)
-                    cells[coord[1]][coord[0]] = 1
+                    cells[coord.y][coord.x] = 1
 
                 for row in reversed(cells):
                     print(f"{' '.join(map(str, row))}")
@@ -44,22 +46,24 @@ class Ruleset:
         with open(config_path, encoding="utf8") as infile:
             cfg = yaml.safe_load(infile.read())
         polyminos = {
-            getattr(Mino, mino_type): Polymino(**mino_cfg)
+            getattr(Mino, mino_type): Polymino.from_config(**mino_cfg)
             for mino_type, mino_cfg in cfg["polyminos"].items()
         }
 
         return cls(
             cfg["num_cols"],
             cfg["num_rows"],
+            cfg["num_rots"],
             cfg["num_visible_rows"],
             cfg["num_previews"],
             polyminos,
         )
 
 
-def rotate(coord: list[int], width: int, rot: int) -> list[int]:
+def rotate(coord: Vector2D, width: int, rot: int) -> Vector2D:
+    """Rotates a 2D coordinate clockwise `rot` times."""
     rot %= 4
     while rot > 0:
-        coord = [width - coord[1] - 1, coord[0]]
+        coord = Vector2D(width - coord.y - 1, coord.x)
         rot -= 1
     return coord

@@ -4,8 +4,8 @@ import random
 from collections import deque
 from dataclasses import InitVar, dataclass, field
 
-from polymino import Mino
-from ruleset import Ruleset
+from model.polymino import Mino
+from model.ruleset import Ruleset
 
 
 @dataclass
