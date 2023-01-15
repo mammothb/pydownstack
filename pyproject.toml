@@ -1,0 +1,7 @@
+[tool.mypy]
+explicit_package_bases = true
+mypy_path = "src"
+
+[tool.pylint.main]
+extension-pkg-allow-list = ["pygame"]
+init-hook = "import sys; sys.path.append('src')"
