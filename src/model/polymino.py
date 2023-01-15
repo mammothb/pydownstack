@@ -1,7 +1,6 @@
 from dataclasses import dataclass
-from enum import Enum
 
-from model.vector import Vector2D
+from common.vector import Vector2D
 
 
 @dataclass
@@ -28,14 +27,3 @@ class Polymino:
             key: list(map(Vector2D.from_list, value)) for key, value in kicks.items()
         }
         return cls(width, coords_vec, origin_vec, kicks_vec)
-
-
-class Mino(Enum):
-    J = 0
-    L = 1
-    S = 2
-    Z = 3
-    T = 4
-    I = 5
-    O = 6
-    EMPTY = 7

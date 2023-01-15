@@ -1,6 +1,6 @@
 from dataclasses import InitVar, dataclass, field
 
-from model.polymino import Mino
+from common.mino import Mino
 
 
 @dataclass

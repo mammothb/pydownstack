@@ -3,8 +3,9 @@ from pathlib import Path
 
 import yaml
 
-from model.polymino import Mino, Polymino
-from model.vector import Vector2D
+from common.mino import Mino
+from common.vector import Vector2D
+from model.polymino import Polymino
 
 
 @dataclass
@@ -20,7 +21,7 @@ class Ruleset:
     def mino_types(self) -> list[Mino]:
         return list(self.polyminos.keys())
 
-    def get_coords(self, mino: Mino, rot: int) -> list[Vector2D]:
+    def get_coords(self, mino: Mino, rot: int = 0) -> list[Vector2D]:
         poly = self.polyminos[mino]
         return [rotate(coord, poly.width, rot) for coord in poly.coords]
 

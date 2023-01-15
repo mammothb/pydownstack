@@ -1,8 +1,8 @@
 from dataclasses import InitVar, dataclass, field
 
-from model.polymino import Mino
+from common.mino import Mino
+from common.vector import Vector2D
 from model.ruleset import Ruleset
-from model.vector import Vector2D
 
 
 @dataclass

@@ -1,5 +1,6 @@
 import copy
 
+from common.mino import Mino
 from model.ruleset import rotate
 
 
@@ -11,7 +12,8 @@ def debug_board(board, current, try_finalize=False) -> None:
     print(f"    {' '.join(map(str, range(tmp.num_cols)))}")
     for i, line in enumerate(reversed(tmp.lines)):
         print(
-            f"{tmp.num_rows - i - 1:2}| {' '.join(map(lambda x: str(x.value), line.cells))}"
+            f"{tmp.num_rows - i - 1:2}| "
+            f"{' '.join(map(lambda x: str(x.value) if x != Mino.EMPTY else '_', line.cells))}"
         )
 
 

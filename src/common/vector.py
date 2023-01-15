@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import ClassVar
 
 
 @dataclass
@@ -24,13 +23,5 @@ class Vector2D:
 
     @classmethod
     def from_list(cls, coord: list[int]) -> "Vector2D":
+        """Construct from a 2 element list."""
         return cls(coord[0], coord[1])
-
-
-@dataclass
-class Direction:
-    """Direction vectors."""
-
-    DOWN: ClassVar[Vector2D] = Vector2D(0, -1)
-    LEFT: ClassVar[Vector2D] = Vector2D(-1, 0)
-    RIGHT: ClassVar[Vector2D] = Vector2D(1, 0)

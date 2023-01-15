@@ -1,10 +1,11 @@
 from dataclasses import dataclass, field
 from typing import Union
 
+from common.mino import Mino
+from common.vector import Vector2D
+from model.direction import Direction
 from model.line import Line
 from model.piece import Piece
-from model.polymino import Mino
-from model.vector import Direction, Vector2D
 
 
 @dataclass
