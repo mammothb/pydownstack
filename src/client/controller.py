@@ -11,6 +11,8 @@ from model.stacker import Stacker
 
 @dataclass
 class Controller:
+    """Controller class."""
+
     view: View
     stacker: Stacker
 
@@ -18,6 +20,7 @@ class Controller:
         self._update_view(Update.all())
 
     def handle(self, event: Event, timer: Timer) -> None:
+        """Handles input event."""
         if (action := self.view.handle(event, timer)) is not None:
             self.handle_action(action)
 
@@ -26,6 +29,7 @@ class Controller:
         self.view.paint(canvas)
 
     def handle_action(self, action: Action) -> None:
+        """Handles game operations."""
         instruction: Update | list[Update] | None = None
         match action:
             case Action.MOVE_LEFT | Action.MOVE_RIGHT:
@@ -45,6 +49,10 @@ class Controller:
             case Action.HOLD:
                 self.stacker.hold()
                 instruction = [Update.PIECE, Update.QUEUE]
+            case Action.RESET:
+                ruleset = self.stacker.ruleset
+                self.stacker = Stacker(ruleset)
+                instruction = Update.all()
 
         self._update_view(instruction)
 
