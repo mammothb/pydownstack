@@ -1,8 +1,7 @@
 import copy
 from dataclasses import dataclass, field
-from typing import Optional
 
-from common.mino import Mino
+from common.enum import Mino
 from model.bag import Bag
 from model.board import Board
 from model.direction import Direction
@@ -17,7 +16,7 @@ class Stacker:
     bag: Bag = field(init=False)
     board: Board = field(init=False)
     current: Piece = field(init=False)
-    held: Optional[Mino] = field(default=None, init=False)
+    held: Mino | None = field(default=None, init=False)
 
     def __post_init__(self) -> None:
         self.bag = Bag(self.ruleset)
@@ -35,6 +34,7 @@ class Stacker:
         """Drops current piece to the bottom and spawns new piece."""
         self.board.soft_drop(self.current)
         self.board.finalize(self.current)
+        self.board.sift()
         self.spawn_from_bag()
 
     def hold(self) -> bool:
@@ -54,6 +54,9 @@ class Stacker:
         return self.board.move_horizontal(
             self.current, Direction.LEFT if dx < 0 else Direction.RIGHT
         )
+
+    def rotate(self, dr: int) -> bool:
+        return self.board.rotate(self.current, dr, self.ruleset)
 
     def soft_drop(self) -> bool:
         """Drops current piece to the bottom."""

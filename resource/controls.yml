@@ -1,0 +1,13 @@
+keybinding:
+  move_left: left
+  move_right: right
+  soft_drop: down
+  hard_drop: space
+  rotate_ccw: d
+  rotate_cw: f
+  hold: s
+  reset: f4
+
+handling:
+  das: 105
+  arr: 13

@@ -1,6 +1,6 @@
 import copy
 
-from common.mino import Mino
+from common.enum import Mino
 from model.ruleset import rotate
 
 

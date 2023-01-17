@@ -4,7 +4,7 @@ import random
 from collections import deque
 from dataclasses import InitVar, dataclass, field
 
-from common.mino import Mino
+from common.enum import Mino
 from model.ruleset import Ruleset
 
 

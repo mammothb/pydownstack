@@ -1,5 +1,7 @@
+from collections import defaultdict
 from dataclasses import dataclass
 
+from common.enum import Rotation
 from common.vector import Vector2D
 
 
@@ -8,7 +10,7 @@ class Polymino:
     width: int
     coords: list[Vector2D]
     origin: Vector2D
-    kicks: dict[str, list[Vector2D]]
+    kicks: defaultdict[Rotation, dict[int, list[Vector2D]]]
 
     @classmethod
     def from_config(
@@ -23,7 +25,8 @@ class Polymino:
         """
         coords_vec = list(map(Vector2D.from_list, coords))
         origin_vec = Vector2D.from_list(origin)
-        kicks_vec = {
-            key: list(map(Vector2D.from_list, value)) for key, value in kicks.items()
-        }
+        kicks_vec: defaultdict[Rotation, dict[int, list[Vector2D]]] = defaultdict(dict)
+        for key, value in kicks.items():
+            rotation = Rotation.CCW if key[0] == "<" else Rotation.CW
+            kicks_vec[rotation][int(key[1])] = list(map(Vector2D.from_list, value))
         return cls(width, coords_vec, origin_vec, kicks_vec)

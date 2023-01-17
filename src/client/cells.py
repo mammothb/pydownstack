@@ -4,9 +4,10 @@ from dataclasses import dataclass, field
 from typing import Callable, Iterable
 
 import pygame
-from pygame import Color, Rect, Surface
+from pygame import Color, Rect
+from pygame.surface import Surface
 
-from common.mino import Mino
+from common.enum import CellStyle, Mino
 from common.vector import Vector2D
 
 
@@ -31,8 +32,14 @@ class Cells:
         for key in self.rects:
             self.rects[key].clear()
 
-    def paint(self, canvas: Surface, colors: dict[Mino, Color]) -> None:
-        for c, rects in self.rects.items():
-            color = colors[c]
+    def paint(
+        self,
+        canvas: Surface,
+        colors: dict[Mino, Color],
+        styles: CellStyle | dict[Mino, CellStyle],
+    ) -> None:
+        for mino, rects in self.rects.items():
+            color = colors[mino]
+            style = styles[mino] if isinstance(styles, dict) else styles
             for rect in rects:
-                pygame.draw.rect(canvas, color, rect)
+                pygame.draw.rect(canvas, color, rect, style)

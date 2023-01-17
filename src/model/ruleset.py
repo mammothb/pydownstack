@@ -3,7 +3,7 @@ from pathlib import Path
 
 import yaml
 
-from common.mino import Mino
+from common.enum import Mino, Rotation
 from common.vector import Vector2D
 from model.polymino import Polymino
 
@@ -25,6 +25,11 @@ class Ruleset:
         poly = self.polyminos[mino]
         return [rotate(coord, poly.width, rot) for coord in poly.coords]
 
+    def get_kicks(self, mino: Mino, rotation: Rotation, rot_dst: int) -> list[Vector2D]:
+        if rotation not in self.polyminos[mino].kicks:
+            return []
+        return self.polyminos[mino].kicks[rotation][rot_dst]
+
     def get_origin(self, mino: Mino) -> Vector2D:
         return self.polyminos[mino].origin
 
@@ -44,6 +49,7 @@ class Ruleset:
 
     @classmethod
     def from_config(cls, config_path: Path) -> "Ruleset":
+        """Constructs Ruleset object from a config file."""
         with open(config_path, encoding="utf8") as infile:
             cfg = yaml.safe_load(infile.read())
         polyminos = {
@@ -65,6 +71,6 @@ def rotate(coord: Vector2D, width: int, rot: int) -> Vector2D:
     """Rotates a 2D coordinate clockwise `rot` times."""
     rot %= 4
     while rot > 0:
-        coord = Vector2D(width - coord.y - 1, coord.x)
+        coord = Vector2D(coord.y, width - coord.x - 1)
         rot -= 1
     return coord

@@ -18,7 +18,6 @@ class Geometry:
     text_pad: int = field(default=6, init=False)
 
     def __post_init__(self, size: tuple[int, int]) -> None:
-        self.bottom = size[1]
         self.cell = int(size[1] * 3 / 4 / self.num_rows)
 
         main_w = self.cell * self.num_cols
@@ -28,19 +27,22 @@ class Geometry:
         self.board_area = Rect(main_x, main_y, main_w, main_h)
 
     def hold_cell(self, coord: Vector2D) -> Rect:
-        x_0 = self.board_area.left
-        y_0 = self.board_area.top
+        """Creates the geometry for the 'hold' cell."""
+        x_0 = self.board_area.left - self.cell * 5
+        y_0 = self.board_area.top + self.cell * 3
         return self._make_cell(x_0, y_0, self.cell, coord)
 
     def main_cell(self, coord: Vector2D) -> Rect:
+        """Creates the geometry for the 'main' cells."""
         x_0, y_0 = self.board_area.bottomleft
         return self._make_cell(x_0, y_0, self.cell, coord)
 
     def preview_cell(self, idx: int, coord: Vector2D) -> Rect:
+        """Creates the geometry for the 'preview' cells."""
         x_0 = self.board_area.right + self.cell
-        y_0 = self.board_area.top + (idx + 1) * self.cell * 3
+        y_0 = self.board_area.top + self.cell * (idx + 1) * 3
         return self._make_cell(x_0, y_0, self.cell, coord)
 
     @staticmethod
     def _make_cell(x_0: int, y_0: int, size: int, coord: Vector2D) -> Rect:
-        return Rect(x_0 + coord.x * size, y_0 + coord.y * size, size, size)
+        return Rect(x_0 + size * coord.x, y_0 - size * (coord.y - 1), size, size)
