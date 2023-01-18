@@ -1,12 +1,22 @@
+"""Class to converts coordinates from internal representation to rendered
+representation.
+"""
+
 from dataclasses import InitVar, dataclass, field
+from typing import TYPE_CHECKING
 
 from pygame import Rect
 
-from common.vector import Vector2D
+if TYPE_CHECKING:
+    from common.vector import Vector2D
 
 
 @dataclass
 class Geometry:
+    """Class to converts coordinates from internal representation to rendered
+    representation.
+    """
+
     size: InitVar[tuple[int, int]]
     num_cols: int
     num_rows: int
@@ -26,23 +36,23 @@ class Geometry:
         main_y = int((size[1] - main_h) / 2 - self.line_height_small)
         self.board_area = Rect(main_x, main_y, main_w, main_h)
 
-    def hold_cell(self, coord: Vector2D) -> Rect:
+    def hold_cell(self, coord: "Vector2D") -> Rect:
         """Creates the geometry for the 'hold' cell."""
         x_0 = self.board_area.left - self.cell * 5
         y_0 = self.board_area.top + self.cell * 3
         return self._make_cell(x_0, y_0, self.cell, coord)
 
-    def main_cell(self, coord: Vector2D) -> Rect:
+    def main_cell(self, coord: "Vector2D") -> Rect:
         """Creates the geometry for the 'main' cells."""
         x_0, y_0 = self.board_area.bottomleft
         return self._make_cell(x_0, y_0, self.cell, coord)
 
-    def preview_cell(self, idx: int, coord: Vector2D) -> Rect:
+    def preview_cell(self, idx: int, coord: "Vector2D") -> Rect:
         """Creates the geometry for the 'preview' cells."""
         x_0 = self.board_area.right + self.cell
         y_0 = self.board_area.top + self.cell * (idx + 1) * 3
         return self._make_cell(x_0, y_0, self.cell, coord)
 
     @staticmethod
-    def _make_cell(x_0: int, y_0: int, size: int, coord: Vector2D) -> Rect:
+    def _make_cell(x_0: int, y_0: int, size: int, coord: "Vector2D") -> Rect:
         return Rect(x_0 + size * coord.x, y_0 - size * (coord.y - 1), size, size)

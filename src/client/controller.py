@@ -1,30 +1,35 @@
+"""Controller class."""
+
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from pygame.event import Event
-from pygame.surface import Surface
-
-from client.timer import Timer
-from client.view import View
 from common.enum import Action, Update
 from model.stacker import Stacker
+
+if TYPE_CHECKING:
+    from pygame.event import Event
+    from pygame.surface import Surface
+
+    from client.timer import Timer
+    from client.view import View
 
 
 @dataclass
 class Controller:
     """Controller class."""
 
-    view: View
+    view: "View"
     stacker: Stacker
 
     def __post_init__(self) -> None:
         self._update_view(Update.all())
 
-    def handle(self, event: Event, timer: Timer) -> None:
+    def handle(self, event: "Event", timer: "Timer") -> None:
         """Handles input event."""
         if (action := self.view.handle(event, timer)) is not None:
             self.handle_action(action)
 
-    def paint(self, canvas: Surface) -> None:
+    def paint(self, canvas: "Surface") -> None:
         """Renders view."""
         self.view.paint(canvas)
 

@@ -1,3 +1,5 @@
+"""2D vector."""
+
 from dataclasses import dataclass
 
 
@@ -23,5 +25,5 @@ class Vector2D:
 
     @classmethod
     def from_list(cls, coord: list[int]) -> "Vector2D":
-        """Construct from a 2 element list."""
+        """Constructs from a 2 element list."""
         return cls(coord[0], coord[1])

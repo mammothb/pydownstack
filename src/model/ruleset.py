@@ -1,3 +1,5 @@
+"""Ruleset."""
+
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -10,6 +12,9 @@ from model.polymino import Polymino
 
 @dataclass
 class Ruleset:
+    """Ruleset, determines the positions and kicks of the pieces."""
+
+    difficulty: int
     num_cols: int
     num_rows: int
     num_rots: int
@@ -19,37 +24,35 @@ class Ruleset:
 
     @property
     def mino_types(self) -> list[Mino]:
+        """All types of minos."""
         return list(self.polyminos.keys())
 
     def get_coords(self, mino: Mino, rot: int = 0) -> list[Vector2D]:
+        """Returns the coordinates of the specified mino at the specified
+        rotation.
+        """
         poly = self.polyminos[mino]
-        return [rotate(coord, poly.width, rot) for coord in poly.coords]
+        return [_rotate(coord, poly.width, rot) for coord in poly.coords]
 
     def get_kicks(self, mino: Mino, rotation: Rotation, rot_dst: int) -> list[Vector2D]:
+        """Returns the kick data for the mino at the specified rotation
+        configuration.
+        """
         if rotation not in self.polyminos[mino].kicks:
             return []
         return self.polyminos[mino].kicks[rotation][rot_dst]
 
     def get_origin(self, mino: Mino) -> Vector2D:
+        """Returns the coordinates of the specified mino."""
         return self.polyminos[mino].origin
 
-    def debug_pieces(self) -> None:
-        for mino, poly in self.polyminos.items():
-            width = poly.width
-            print(mino)
-            for rot in range(4):
-                print(rot)
-                cells = [[0] * width for _ in range(width)]
-                for coord in poly.coords:
-                    coord = rotate(coord, width, rot)
-                    cells[coord.y][coord.x] = 1
-
-                for row in reversed(cells):
-                    print(f"{' '.join(map(str, row))}")
-
     @classmethod
-    def from_config(cls, config_path: Path) -> "Ruleset":
+    def from_config(cls, settings_path: Path, config_path: Path) -> "Ruleset":
         """Constructs Ruleset object from a config file."""
+        with open(settings_path, encoding="utf8") as infile:
+            setting = yaml.safe_load(infile.read())
+        difficulty = min(max(int(setting["difficulty"]), 1), 4)
+
         with open(config_path, encoding="utf8") as infile:
             cfg = yaml.safe_load(infile.read())
         polyminos = {
@@ -58,6 +61,7 @@ class Ruleset:
         }
 
         return cls(
+            difficulty,
             cfg["num_cols"],
             cfg["num_rows"],
             cfg["num_rots"],
@@ -67,7 +71,7 @@ class Ruleset:
         )
 
 
-def rotate(coord: Vector2D, width: int, rot: int) -> Vector2D:
+def _rotate(coord: Vector2D, width: int, rot: int) -> Vector2D:
     """Rotates a 2D coordinate clockwise `rot` times."""
     rot %= 4
     while rot > 0:

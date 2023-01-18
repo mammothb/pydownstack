@@ -1,3 +1,5 @@
+"""Game launch script."""
+
 import sys
 from pathlib import Path
 
@@ -7,34 +9,37 @@ from client.controller import Controller
 from client.controls import Controls
 from client.timer import Timer
 from client.view import DEFAULT_SIZE, View
-from model.debug import debug_board, debug_pieces
 from model.ruleset import Ruleset
 from model.stacker import Stacker
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
+
+def get_resource_path(*path: str) -> Path:
+    """Constructs resources path. Uses sys._MEIPASS if running from .exe built by
+    pyinstaller.
+    """
+    try:
+        # pylint: disable=protected-access
+        root_dir = Path(sys._MEIPASS)  # type: ignore[attr-defined]
+    except AttributeError:
+        root_dir = Path(__file__).resolve().parents[1]
+
+    return root_dir.joinpath(*path)
 
 
 def main():
+    """Main loop."""
     pygame.init()
     screen = pygame.display.set_mode(DEFAULT_SIZE)
 
-    resource_dir = ROOT_DIR / "resource"
-    controls_path = resource_dir / "controls.yml"
-    ruleset_path = resource_dir / "guideline.yml"
-
-    controls = Controls.from_config(controls_path)
-    ruleset = Ruleset.from_config(ruleset_path)
+    controls = Controls.from_config(get_resource_path("resource", "controls.yml"))
+    ruleset = Ruleset.from_config(
+        Path.cwd() / "settings.yml", get_resource_path("resource", "guideline.yml")
+    )
 
     stacker = Stacker(ruleset)
     view = View(ruleset, controls)
     controller = Controller(view, stacker)
     timer = Timer(controls.das, controls.arr)
-    # debug_board(stacker.board, stacker.current, True)
-
-    # stacker.hard_drop()
-    # stacker.soft_drop()
-    # stacker.move_horizontal(1)
-    # debug_board(stacker.board, stacker.current, True)
 
     while True:
         timer.update()

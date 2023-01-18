@@ -1,3 +1,5 @@
+"""Keystroke to game op bindings."""
+
 from dataclasses import InitVar, dataclass, field
 from datetime import timedelta
 from pathlib import Path
@@ -10,6 +12,8 @@ from common.enum import Action
 
 @dataclass
 class Controls:
+    """Keystroke to game op bindings."""
+
     keybinding: InitVar[dict[str, str]]
     handling: InitVar[dict[str, int]]
 
@@ -31,6 +35,7 @@ class Controls:
         self.arr = timedelta(milliseconds=handling["arr"])
 
     def parse(self, keycode: int) -> Action | None:
+        """Parses input keystroke to game action."""
         return self.key_to_action.get(keycode, None)
 
     @classmethod

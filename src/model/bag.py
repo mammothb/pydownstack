@@ -3,18 +3,20 @@
 import random
 from collections import deque
 from dataclasses import InitVar, dataclass, field
+from typing import TYPE_CHECKING
 
-from common.enum import Mino
-from model.ruleset import Ruleset
+if TYPE_CHECKING:
+    from common.enum import Mino
+    from model.ruleset import Ruleset
 
 
 @dataclass
 class Bag:
     """Random bag with previews."""
 
-    ruleset: InitVar[Ruleset]
+    ruleset: InitVar["Ruleset"]
 
-    previews: deque[Mino] = field(init=False)
+    previews: deque["Mino"] = field(init=False)
     source: "RandomBag" = field(init=False)
 
     def __post_init__(self, ruleset) -> None:
@@ -23,7 +25,7 @@ class Bag:
         self._refill(ruleset.num_previews)
 
     @property
-    def next(self) -> Mino:
+    def next(self) -> "Mino":
         """The next mino in the bag."""
         num_previews = len(self.previews)
         mino = self.previews.popleft()
@@ -40,7 +42,7 @@ class Bag:
 class RandomBag:
     """Endless bag of minos which shuffles when a full bag has been read."""
 
-    source: list[Mino]
+    source: list["Mino"]
     index: int = field(default=0, init=False)
     size: int = field(init=False)
 
@@ -52,7 +54,7 @@ class RandomBag:
         self.index = 0
         return self
 
-    def __next__(self) -> Mino:
+    def __next__(self) -> "Mino":
         mino = self.source[self.index]
         self.index = (self.index + 1) % self.size
         if self.index == 0:

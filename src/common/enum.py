@@ -1,7 +1,13 @@
+"""Custom enum classes."""
+
 from enum import Enum, IntEnum
+
+from common.vector import Vector2D
 
 
 class Action(Enum):
+    """Game actions."""
+
     MOVE_LEFT = 0
     MOVE_RIGHT = 1
     SOFT_DROP = 2
@@ -24,7 +30,17 @@ class CellStyle(IntEnum):
     OUTLINE = 1
 
 
+class Direction(Vector2D, Enum):
+    """Direction vectors."""
+
+    DOWN = 0, -1
+    LEFT = -1, 0
+    RIGHT = 1, 0
+
+
 class Mino(Enum):
+    """Mino types."""
+
     J = 0
     L = 1
     S = 2
@@ -37,6 +53,8 @@ class Mino(Enum):
 
 
 class Rotation(Enum):
+    """Rotation types."""
+
     CCW = 0
     CW = 1
 

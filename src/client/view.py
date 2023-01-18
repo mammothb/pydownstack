@@ -1,21 +1,28 @@
-from collections import deque
+"""Renderer."""
+
 from dataclasses import dataclass, field
 from functools import partial
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 import pygame
 from pygame import Color
-from pygame.event import Event
-from pygame.surface import Surface
 
 from client.cells import Cells
-from client.controls import Controls
 from client.geometry import Geometry
-from client.timer import Timer
-from common.enum import Action, CellStyle, Mino
-from model.board import Board
-from model.piece import Piece
-from model.ruleset import Ruleset
+from common.enum import CellStyle, Mino
+
+if TYPE_CHECKING:
+    from collections import deque
+
+    from pygame.event import Event
+    from pygame.surface import Surface
+
+    from client.controls import Controls
+    from client.timer import Timer
+    from common.enum import Action
+    from model.board import Board
+    from model.piece import Piece
+    from model.ruleset import Ruleset
 
 DEFAULT_SIZE = (1200, 720)
 
@@ -34,6 +41,8 @@ COLORS = {
 
 @dataclass
 class View:
+    """Renderer."""
+
     colors: ClassVar[dict[Mino, Color]] = {
         key: Color(color) for key, color in COLORS.items()
     }
@@ -42,8 +51,8 @@ class View:
         for mino in Mino
     }
 
-    ruleset: Ruleset
-    controls: Controls
+    ruleset: "Ruleset"
+    controls: "Controls"
     geometry: Geometry = field(init=False)
     queue: Cells = field(init=False)
     board: Cells = field(init=False)
@@ -59,7 +68,8 @@ class View:
         self.piece = Cells(num_rows)
         self.ghost = Cells(num_rows)
 
-    def handle(self, event: Event, timer: Timer) -> Action | None:
+    def handle(self, event: "Event", timer: "Timer") -> "Action | None":
+        """Handles input event."""
         match event.type:
             case pygame.QUIT:
                 raise SystemExit
@@ -69,29 +79,35 @@ class View:
                 self._handle_key_up(event.key, timer)
         return None
 
-    def paint(self, canvas: Surface) -> None:
+    def paint(self, canvas: "Surface") -> None:
+        """Renders the screen."""
         canvas.fill(0)
         self.queue.paint(canvas, self.colors, CellStyle.SOLID)
         self.board.paint(canvas, self.colors, self.styles)
         self.piece.paint(canvas, self.colors, CellStyle.SOLID)
         self.ghost.paint(canvas, self.colors, CellStyle.OUTLINE)
 
-    def set_board(self, board: Board) -> None:
+    def set_board(self, board: "Board") -> None:
+        """Sets the colors and geometry of the game board."""
         self.board.clear()
         for line in board:
             self.board.append(line, self.geometry.main_cell)
 
-    def set_piece(self, piece: Piece, ghost: Piece) -> None:
+    def set_piece(self, piece: "Piece", ghost: "Piece") -> None:
+        """Sets the colors and geometry of the current and ghost pieces."""
         self.piece.clear()
         self.ghost.clear()
         self.piece.append(
-            ((coord, piece.mino) for coord in piece.coords), self.geometry.main_cell
+            ((coord, piece.mino) for coord in piece.get_coords(self.ruleset)),
+            self.geometry.main_cell,
         )
         self.ghost.append(
-            ((coord, ghost.mino) for coord in ghost.coords), self.geometry.main_cell
+            ((coord, ghost.mino) for coord in ghost.get_coords(self.ruleset)),
+            self.geometry.main_cell,
         )
 
-    def set_queue(self, previews: deque[Mino], hold: Mino | None) -> None:
+    def set_queue(self, previews: "deque[Mino]", hold: Mino | None) -> None:
+        """Sets the colors and geometry of the preview queue."""
         self.queue.clear()
         if hold is not None:
             self.queue.append(
@@ -105,7 +121,7 @@ class View:
                 preview_cell,
             )
 
-    def _handle_key_down(self, key: int, timer: Timer) -> Action | None:
+    def _handle_key_down(self, key: int, timer: "Timer") -> "Action | None":
         action = self.controls.parse(key)
         if action is None:
             return None
@@ -113,6 +129,6 @@ class View:
             timer.start_autorepeat(action)
         return action
 
-    def _handle_key_up(self, key: int, timer: Timer) -> None:
+    def _handle_key_up(self, key: int, timer: "Timer") -> None:
         if (action := self.controls.parse(key)) is not None:
             timer.stop_autorepeat(action)

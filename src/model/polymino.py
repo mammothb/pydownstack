@@ -1,3 +1,5 @@
+"""Origin and kicks data of a polymino."""
+
 from collections import defaultdict
 from dataclasses import dataclass
 
@@ -7,6 +9,8 @@ from common.vector import Vector2D
 
 @dataclass
 class Polymino:
+    """Origin and kicks data of one polymino type."""
+
     width: int
     coords: list[Vector2D]
     origin: Vector2D

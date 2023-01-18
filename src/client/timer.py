@@ -1,13 +1,20 @@
+"""Timer class to handle DAS."""
+
 import time
 from dataclasses import InitVar, dataclass, field
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from client.delayed_auto_repeat import DelayedAutoRepeat
-from common.enum import Action
+
+if TYPE_CHECKING:
+    from common.enum import Action
 
 
 @dataclass
 class Timer:
+    """Timer class to handle DAS."""
+
     das: InitVar[timedelta]
     arr: InitVar[timedelta]
 
@@ -18,16 +25,20 @@ class Timer:
         self.latest = self._now()
         self.autorepeat = DelayedAutoRepeat(das, arr)
 
-    def start_autorepeat(self, action: Action) -> bool:
+    def start_autorepeat(self, action: "Action") -> bool:
+        """Starts DAS timer."""
         return self.autorepeat.start(self.latest, action)
 
-    def stop_autorepeat(self, action: Action) -> None:
+    def stop_autorepeat(self, action: "Action") -> None:
+        """Stops DAS timer."""
         self.autorepeat.stop(action)
 
-    def poll(self) -> Action | None:
+    def poll(self) -> "Action | None":
+        """Triggers any loaded actions."""
         return self.autorepeat.trigger(self.latest)
 
     def update(self) -> None:
+        """Updates internal clock."""
         self.latest = self._now()
 
     @staticmethod
