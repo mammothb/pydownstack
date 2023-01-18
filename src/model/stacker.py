@@ -26,6 +26,7 @@ class Stacker:
     board: Board = field(init=False)
     current: Piece = field(init=False)
     held: "Mino | None" = field(default=None, init=False)
+    held_this_turn: bool = field(default=False, init=False)
 
     def __post_init__(self) -> None:
         self.garbage_interval = 6 - self.ruleset.difficulty
@@ -50,18 +51,21 @@ class Stacker:
         self.board.sift()
         self._calculate_cheese()
         self.spawn_from_bag()
+        self.held_this_turn = False
 
-    def hold(self) -> bool:
+    def hold(self) -> None:
         """Holds the current piece, swaps with previously held piece is
         available.
         """
+        if self.held_this_turn:
+            return
         prev = self.current.mino
         if self.held is not None:
             self._spawn(self.held)
         else:
             self.spawn_from_bag()
         self.held = prev
-        return True
+        self.held_this_turn = True
 
     def move_horizontal(self, dx: int) -> bool:
         """Moves the piece horizontally."""
