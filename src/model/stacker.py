@@ -18,6 +18,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class Stacker:
+    """Stacker engine."""
+
     ruleset: "Ruleset"
 
     garbage_interval: int = field(init=False)

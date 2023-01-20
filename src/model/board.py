@@ -1,9 +1,9 @@
 """The board which contains lines of colored cells."""
 
-from collections import deque
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Iterable
 
+from common.doubly_linked_list import DoublyLinkedList
 from common.enum import Mino
 from common.vector import Vector2D
 from model.line import Line
@@ -19,13 +19,12 @@ class Board:
 
     num_cols: int
     num_rows: int
-    col_idx: int = field(default=0, init=False)
     row_idx: int = field(default=0, init=False)
-    lines: deque[Line] = field(init=False)
+    lines: DoublyLinkedList[Line] = field(init=False)
 
     def __post_init__(self) -> None:
-        self.lines = deque(
-            (Line(self.num_cols) for _ in range(self.num_rows)), maxlen=self.num_rows
+        self.lines = DoublyLinkedList.fill_with_default(
+            self.num_rows, lambda: Line(self.num_cols)
         )
 
     def __getitem__(self, coord: Vector2D) -> Mino:
@@ -34,7 +33,6 @@ class Board:
         return self.lines[coord.y][coord.x]
 
     def __iter__(self) -> "Board":
-        self.col_idx = 0
         self.row_idx = 0
         return self
 
@@ -67,11 +65,14 @@ class Board:
         self.lines.appendleft(line)
 
     def sift(self) -> None:
-        dst = 0
-        for src, line in enumerate(self.lines):
-            if not line.is_full:
-                self.lines[dst], self.lines[src] = self.lines[src], self.lines[dst]
-                dst += 1
-        while dst < self.num_rows:
-            self.lines[dst].reset()
-            dst += 1
+        """Removes lines that are full and appends the same number of empty
+        lines.
+        """
+        num_removed = 0
+        for line in reversed(self.lines):
+            if line.data.is_full:
+                self.lines.remove(line)
+                num_removed += 1
+        while num_removed != 0:
+            self.lines.append(Line(self.num_cols))
+            num_removed -= 1
