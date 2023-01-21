@@ -29,10 +29,6 @@ class Controller:
         if (action := self.view.handle(event, timer)) is not None:
             self.handle_action(action)
 
-    def paint(self, canvas: "Surface") -> None:
-        """Renders view."""
-        self.view.paint(canvas)
-
     def handle_action(self, action: Action) -> None:
         """Handles game operations."""
         instruction: Update | list[Update] | None = None
@@ -60,6 +56,11 @@ class Controller:
                 instruction = Update.all()
 
         self._update_view(instruction)
+
+    def paint(self, canvas: "Surface") -> None:
+        """Renders view."""
+        self.view.render_labels()
+        self.view.paint(canvas)
 
     def _update_view(self, instruction: Update | list[Update] | None) -> None:
         if instruction is None:

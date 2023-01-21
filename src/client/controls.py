@@ -34,6 +34,10 @@ class Controls:
         self.das = timedelta(milliseconds=handling["das"])
         self.arr = timedelta(milliseconds=handling["arr"])
 
+    def get_key_name(self, action: Action) -> str:
+        """Returns the key name for the specified action."""
+        return pygame.key.name(self.action_to_key[action])
+
     def parse(self, keycode: int) -> Action | None:
         """Parses input keystroke to game action."""
         return self.key_to_action.get(keycode, None)

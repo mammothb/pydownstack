@@ -30,6 +30,7 @@ def main():
     """Main loop."""
     pygame.init()
     screen = pygame.display.set_mode(DEFAULT_SIZE)
+    font = pygame.font.Font(get_resource_path("resource", "FiraCode-Regular.ttf"), 16)
 
     controls = Controls.from_config(get_resource_path("resource", "controls.yml"))
     ruleset = Ruleset.from_config(
@@ -37,7 +38,7 @@ def main():
     )
 
     stacker = Stacker(ruleset)
-    view = View(ruleset, controls)
+    view = View(ruleset, controls, font)
     controller = Controller(view, stacker)
     timer = Timer(controls.das, controls.arr)
 

@@ -7,4 +7,4 @@ extension-pkg-allow-list = ["pygame"]
 init-hook = "import sys; sys.path.append('src')"
 
 [tool.pylint.basic]
-good-names = ["i", "j", "k", "ex", "Run", "_", "dx", "dr"]
+good-names = ["i", "j", "k", "ex", "Run", "_", "dx", "dr", "x", "y"]

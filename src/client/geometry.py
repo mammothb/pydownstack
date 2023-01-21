@@ -42,6 +42,13 @@ class Geometry:
         y_0 = self.board_area.top + self.cell * 3
         return self._make_cell(x_0, y_0, self.cell, coord)
 
+    def hud(self, group: int, line: int) -> tuple[int, int]:
+        """Creates the top-left position for HUD group."""
+        y = self.text_pad
+        y += line * self.line_height
+        y += group * self.line_height
+        return self.text_pad, y
+
     def main_cell(self, coord: "Vector2D") -> Rect:
         """Creates the geometry for the 'main' cells."""
         x_0, y_0 = self.board_area.bottomleft
