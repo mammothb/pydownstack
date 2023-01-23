@@ -28,6 +28,7 @@ class CellStyle(IntEnum):
 
     SOLID = 0
     OUTLINE = 1
+    ALPHA = 2
 
 
 class Direction(Vector2D, Enum):

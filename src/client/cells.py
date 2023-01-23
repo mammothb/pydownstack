@@ -6,12 +6,14 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Callable, Iterable
 
 import pygame
+from pygame.surface import Surface
+
+from common.enum import CellStyle
 
 if TYPE_CHECKING:
     from pygame import Color, Rect
-    from pygame.surface import Surface
 
-    from common.enum import CellStyle, Mino
+    from common.enum import Mino
     from common.vector import Vector2D
 
 
@@ -53,4 +55,10 @@ class Cells:
             color = colors[mino]
             style = styles[mino] if isinstance(styles, dict) else styles
             for rect in rects:
-                pygame.draw.rect(canvas, color, rect, style)
+                if styles == CellStyle.ALPHA:
+                    surface = Surface(rect.size)
+                    surface.set_alpha(128)
+                    surface.fill(color)
+                    canvas.blit(surface, rect)
+                else:
+                    pygame.draw.rect(canvas, color, rect, style)

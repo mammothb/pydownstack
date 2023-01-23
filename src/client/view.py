@@ -89,7 +89,8 @@ class View:  # pylint: disable=too-many-instance-attributes
         self.queue.paint(canvas, self.colors, CellStyle.SOLID)
         self.board.paint(canvas, self.colors, self.styles)
         self.piece.paint(canvas, self.colors, CellStyle.SOLID)
-        self.ghost.paint(canvas, self.colors, CellStyle.OUTLINE)
+        # self.ghost.paint(canvas, self.colors, CellStyle.OUTLINE)
+        self.ghost.paint(canvas, self.colors, CellStyle.ALPHA)
 
         num_lines = 0
         for label in self.help:

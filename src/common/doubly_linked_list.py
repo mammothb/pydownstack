@@ -1,3 +1,6 @@
+"""Doubly linked list."""
+
+import functools
 from dataclasses import dataclass, field
 from typing import Callable, Generic, Iterator, TypeVar
 
@@ -6,7 +9,7 @@ T = TypeVar("T")
 
 @dataclass
 class DoublyLinkedList(Generic[T]):
-    """A doubly linked list."""
+    """A doubly linked list with fixed max size."""
 
     size: int
     curr_size: int = field(default=0, init=False)
@@ -20,13 +23,9 @@ class DoublyLinkedList(Generic[T]):
     def __getitem__(self, index: int) -> T:
         if not 0 <= index < self.curr_size:
             raise IndexError
-        node = self.head
-        i = 0
-        while i != index:
-            if node is not None:
-                node = node.next
-            i += 1
-        assert node is not None
+        node = functools.reduce(getattr, ["next"] * index, self.head)
+        if node is None:
+            raise IndexError
         return node.data
 
     def __iter__(self) -> "DoublyLinkedList":
