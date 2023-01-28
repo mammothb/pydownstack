@@ -38,7 +38,7 @@ def main():
     )
 
     stacker = Stacker(ruleset)
-    view = View(ruleset, controls, font)
+    view = View(ruleset.num_cols, ruleset.num_visible_rows, controls, font)
     presenter = Presenter(stacker, view)
     timer = Timer(controls.das, controls.arr)
 

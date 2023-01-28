@@ -1,6 +1,6 @@
 """Renderer."""
 
-from dataclasses import dataclass, field
+from dataclasses import InitVar, dataclass, field
 from functools import partial
 from typing import TYPE_CHECKING, ClassVar
 
@@ -13,8 +13,6 @@ from client.label import Label
 from common.enum import Action, CellStyle, Mino
 
 if TYPE_CHECKING:
-    from collections import deque
-
     from pygame.event import Event
     from pygame.font import Font
     from pygame.surface import Surface
@@ -22,8 +20,7 @@ if TYPE_CHECKING:
     from client.controls import Controls
     from client.timer import Timer
     from model.board import Board
-    from model.piece import Piece
-    from model.ruleset import Ruleset
+    from model.piece import BasePiece, GhostPiece, Piece
 
 DEFAULT_SIZE = (1200, 720)
 
@@ -52,7 +49,9 @@ class View:  # pylint: disable=too-many-instance-attributes
         for mino in Mino
     }
 
-    ruleset: "Ruleset"
+    num_cols: InitVar[int]
+    num_rows: InitVar[int]
+
     controls: "Controls"
     font: "Font"
     geometry: Geometry = field(init=False)
@@ -62,9 +61,7 @@ class View:  # pylint: disable=too-many-instance-attributes
     ghost: Cells = field(init=False)
     help: list[Label] = field(default_factory=lambda: [], init=False)
 
-    def __post_init__(self) -> None:
-        num_cols = self.ruleset.num_cols
-        num_rows = self.ruleset.num_visible_rows
+    def __post_init__(self, num_cols: int, num_rows: int) -> None:
         self.geometry = Geometry(DEFAULT_SIZE, num_cols, num_rows)
         self.queue = Cells()
         self.board = Cells(num_rows)
@@ -93,10 +90,11 @@ class View:  # pylint: disable=too-many-instance-attributes
 
         num_lines = 0
         for label in self.help:
-            label.paint(canvas, self.geometry.hud(0, num_lines))
+            label.paint(canvas, self.geometry.get_hud_loc(0, num_lines))
             num_lines += 1
 
     def render_labels(self) -> None:
+        """Renders the texts."""
         for label in self.help:
             label.render(self.font)
 
@@ -104,32 +102,33 @@ class View:  # pylint: disable=too-many-instance-attributes
         """Sets the colors and geometry of the game board."""
         self.board.clear()
         for line in board:
-            self.board.append(line, self.geometry.main_cell)
+            self.board.append(line, self.geometry.transform("main"))
 
-    def set_piece(self, piece: "Piece", ghost: "Piece") -> None:
+    def set_piece(self, piece: "Piece", ghost: "GhostPiece") -> None:
         """Sets the colors and geometry of the current and ghost pieces."""
         self.piece.clear()
         self.ghost.clear()
         self.piece.append(
-            ((coord, piece.mino) for coord in piece.coords), self.geometry.main_cell
+            ((coord, piece.mino) for coord in piece.coords),
+            self.geometry.transform("main"),
         )
         self.ghost.append(
-            ((coord, ghost.mino) for coord in ghost.coords), self.geometry.main_cell
+            ((coord, ghost.mino) for coord in ghost.coords),
+            self.geometry.transform("main"),
         )
 
-    def set_queue(self, previews: "deque[Mino]", hold: Mino | None) -> None:
+    def set_queue(self, previews: list["BasePiece"], hold: "BasePiece | None") -> None:
         """Sets the colors and geometry of the preview queue."""
         self.queue.clear()
         if hold is not None:
             self.queue.append(
-                ((coord, hold) for coord in self.ruleset.get_coords(hold)),
-                self.geometry.hold_cell,
+                ((coord, hold.mino) for coord in hold.base_coords),
+                self.geometry.transform("hold"),
             )
-        for i, mino in enumerate(previews):
-            preview_cell = partial(self.geometry.preview_cell, i)
+        for i, preview in enumerate(previews):
+            preview_cell = partial(self.geometry.transform("preview"), i)
             self.queue.append(
-                ((coord, mino) for coord in self.ruleset.get_coords(mino)),
-                preview_cell,
+                ((coord, preview.mino) for coord in preview.base_coords), preview_cell
             )
 
     def _handle_key_down(self, key: int, timer: "Timer") -> "Action | None":

@@ -27,6 +27,12 @@ class Ruleset:
         """All types of minos."""
         return list(self.polyminos.keys())
 
+    def get_all_coords(self, mino: Mino) -> list[list[Vector2D]]:
+        """Returns the coordinates of the specified mino at all possible
+        rotations.
+        """
+        return [self.get_coords(mino, rot) for rot in range(self.num_rots)]
+
     def get_coords(self, mino: Mino, rot: int = 0) -> list[Vector2D]:
         """Returns the coordinates of the specified mino at the specified
         rotation.

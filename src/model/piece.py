@@ -17,20 +17,26 @@ class BasePiece:
     """A barebones piece which contains only its mino type and default
     coordinates."""
 
-    ruleset: InitVar["Ruleset"]
-
     mino: Mino
-    origin: "Vector2D" = field(init=False)
-    base_coords: list["Vector2D"] = field(init=False)
+    _all_coords: list[list["Vector2D"]]
 
-    def __post_init__(self, ruleset: "Ruleset") -> None:
-        self.origin = ruleset.get_origin(self.mino)
-        self.base_coords = ruleset.get_coords(self.mino)
+    @property
+    def base_coords(self) -> list["Vector2D"]:
+        """The base coordinates without considering the origin."""
+        return self._all_coords[0]
+
+
+@dataclass
+class GhostPiece(BasePiece):
+    """A ghost piece which has movements but no rotation."""
+
+    rot: int
+    origin: "Vector2D"
 
     @property
     def coords(self) -> Iterable["Vector2D"]:
-        """The coordinates occupied by the piece in spawn state."""
-        return (coord + self.origin for coord in self.base_coords)
+        """The coordinates occupied by the piece."""
+        return (coord + self.origin for coord in self._all_coords[self.rot])
 
     def soft_drop(self, board: "Board") -> int:
         """Drops piece down until there is a collision.
@@ -59,26 +65,32 @@ class BasePiece:
 
 
 @dataclass
-class Piece(BasePiece):
+class Piece(GhostPiece):
     """The current piece controlled by the player."""
 
-    rot: int = field(default=0, init=False)
+    ruleset: InitVar["Ruleset"]
+
     _num_rots: int = field(init=False)
-    _all_coords: list[list["Vector2D"]] = field(init=False)
     _kicks: dict[Rotation, dict[int, list["Vector2D"]]] = field(init=False)
 
+    def __init__(self, ruleset: "Ruleset", mino: Mino) -> None:
+        all_coords = [ruleset.get_coords(mino, rot) for rot in range(ruleset.num_rots)]
+        super().__init__(mino, all_coords, 0, ruleset.get_origin(mino))
+        self.__post_init__(ruleset)
+
     def __post_init__(self, ruleset: "Ruleset") -> None:
-        super().__post_init__(ruleset)
         self._num_rots = ruleset.num_rots
-        self._all_coords = [
-            ruleset.get_coords(self.mino, rot) for rot in range(self._num_rots)
-        ]
         self._kicks = ruleset.polyminos[self.mino].kicks
 
     @property
-    def coords(self) -> Iterable["Vector2D"]:
-        """The coordinates occupied by the piece."""
-        return (coord + self.origin for coord in self._all_coords[self.rot])
+    def base(self) -> "BasePiece":
+        """A ghost version of the current, which contains less data."""
+        return BasePiece(self.mino, self._all_coords)
+
+    @property
+    def ghost(self) -> "GhostPiece":
+        """A ghost version of the current, which contains less data."""
+        return GhostPiece(self.mino, self._all_coords, self.rot, self.origin)
 
     def try_rotate(self, dr: int, board: "Board") -> bool:
         """Returns possible a list of possible coordinates after rotating by

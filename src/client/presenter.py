@@ -67,7 +67,7 @@ class Presenter:
             return
         instructions = [instruction] if isinstance(instruction, Update) else instruction
         if Update.QUEUE in instructions:
-            self.view.set_queue(self.stacker.bag.previews, self.stacker.held)
+            self.view.set_queue(self.stacker.previews, self.stacker.held)
         if Update.PIECE in instructions:
             self.view.set_piece(self.stacker.current, self.stacker.ghost)
         if Update.BOARD in instructions:

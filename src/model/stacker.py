@@ -1,6 +1,5 @@
 """Stacker engine."""
 
-import copy
 import random
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
@@ -9,15 +8,16 @@ from common.enum import Direction
 from model.bag import Bag
 from model.board import Board
 from model.line import Line
-from model.piece import Piece
+from model.piece import BasePiece, Piece
 
 if TYPE_CHECKING:
     from common.enum import Mino
+    from model.piece import GhostPiece
     from model.ruleset import Ruleset
 
 
 @dataclass
-class Stacker:
+class Stacker:  # pylint: disable=too-many-instance-attributes
     """Stacker engine."""
 
     ruleset: "Ruleset"
@@ -27,7 +27,7 @@ class Stacker:
     bag: Bag = field(init=False)
     board: Board = field(init=False)
     current: Piece = field(init=False)
-    held: "Mino | None" = field(default=None, init=False)
+    _held: "Mino | None" = field(default=None, init=False)
     held_this_turn: bool = field(default=False, init=False)
 
     def __post_init__(self) -> None:
@@ -39,11 +39,26 @@ class Stacker:
         self.spawn_from_bag()
 
     @property
-    def ghost(self) -> Piece:
+    def ghost(self) -> "GhostPiece":
         """The ghost piece."""
-        ghost = copy.deepcopy(self.current)
+        ghost = self.current.ghost
         ghost.soft_drop(self.board)
         return ghost
+
+    @property
+    def held(self) -> BasePiece | None:
+        """The held piece."""
+        if self._held is None:
+            return None
+        return BasePiece(self._held, self.ruleset.get_all_coords(self._held))
+
+    @property
+    def previews(self) -> list[BasePiece]:
+        """The preview pieces."""
+        return [
+            BasePiece(mino, self.ruleset.get_all_coords(mino))
+            for mino in self.bag.previews
+        ]
 
     def hard_drop(self) -> None:
         """Drops current piece to the bottom and spawns new piece."""
@@ -61,11 +76,11 @@ class Stacker:
         if self.held_this_turn:
             return
         prev = self.current.mino
-        if self.held is not None:
-            self._spawn(self.held)
+        if self._held is not None:
+            self._spawn(self._held)
         else:
             self.spawn_from_bag()
-        self.held = prev
+        self._held = prev
         self.held_this_turn = True
 
     def move_horizontal(self, dx: int) -> bool:

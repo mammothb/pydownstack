@@ -3,7 +3,7 @@ representation.
 """
 
 from dataclasses import InitVar, dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from pygame import Rect
 
@@ -36,25 +36,31 @@ class Geometry:
         main_y = int((size[1] - main_h) / 2 - self.line_height_small)
         self.board_area = Rect(main_x, main_y, main_w, main_h)
 
-    def hold_cell(self, coord: "Vector2D") -> Rect:
-        """Creates the geometry for the 'hold' cell."""
-        x_0 = self.board_area.left - self.cell * 5
-        y_0 = self.board_area.top + self.cell * 3
-        return self._make_cell(x_0, y_0, self.cell, coord)
-
-    def hud(self, group: int, line: int) -> tuple[int, int]:
+    def get_hud_loc(self, group: int, line: int) -> tuple[int, int]:
         """Creates the top-left position for HUD group."""
         y = self.text_pad
         y += line * self.line_height
         y += group * self.line_height
         return self.text_pad, y
 
-    def main_cell(self, coord: "Vector2D") -> Rect:
+    def transform(self, category: str) -> Callable:
+        """Returns the coordinates transform function for the specified
+        category.
+        """
+        return getattr(self, f"_map_{category}_coords")
+
+    def _map_hold_coords(self, coord: "Vector2D") -> Rect:
+        """Creates the geometry for the 'hold' cell."""
+        x_0 = self.board_area.left - self.cell * 5
+        y_0 = self.board_area.top + self.cell * 3
+        return self._make_cell(x_0, y_0, self.cell, coord)
+
+    def _map_main_coords(self, coord: "Vector2D") -> Rect:
         """Creates the geometry for the 'main' cells."""
         x_0, y_0 = self.board_area.bottomleft
         return self._make_cell(x_0, y_0, self.cell, coord)
 
-    def preview_cell(self, idx: int, coord: "Vector2D") -> Rect:
+    def _map_preview_coords(self, idx: int, coord: "Vector2D") -> Rect:
         """Creates the geometry for the 'preview' cells."""
         x_0 = self.board_area.right + self.cell
         y_0 = self.board_area.top + self.cell * (idx + 1) * 3
