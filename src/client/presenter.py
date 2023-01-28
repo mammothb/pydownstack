@@ -1,4 +1,4 @@
-"""Controller class."""
+"""Presenter class."""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
@@ -15,11 +15,11 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Controller:
-    """Controller class."""
+class Presenter:
+    """Presenter class."""
 
-    view: "View"
     stacker: Stacker
+    view: "View"
 
     def __post_init__(self) -> None:
         self._update_view(Update.all())

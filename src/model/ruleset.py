@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-from common.enum import Mino, Rotation
+from common.enum import Mino
 from common.vector import Vector2D
 from model.polymino import Polymino
 
@@ -33,14 +33,6 @@ class Ruleset:
         """
         poly = self.polyminos[mino]
         return [_rotate(coord, poly.width, rot) for coord in poly.coords]
-
-    def get_kicks(self, mino: Mino, rotation: Rotation, rot_dst: int) -> list[Vector2D]:
-        """Returns the kick data for the mino at the specified rotation
-        configuration.
-        """
-        if rotation not in self.polyminos[mino].kicks:
-            return []
-        return self.polyminos[mino].kicks[rotation][rot_dst]
 
     def get_origin(self, mino: Mino) -> Vector2D:
         """Returns the coordinates of the specified mino."""

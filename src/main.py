@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pygame
 
-from client.controller import Controller
 from client.controls import Controls
+from client.presenter import Presenter
 from client.timer import Timer
 from client.view import DEFAULT_SIZE, View
 from model.ruleset import Ruleset
@@ -39,22 +39,22 @@ def main():
 
     stacker = Stacker(ruleset)
     view = View(ruleset, controls, font)
-    controller = Controller(view, stacker)
+    presenter = Presenter(stacker, view)
     timer = Timer(controls.das, controls.arr)
 
     while True:
         timer.update()
         for event in pygame.event.get():
             try:
-                controller.handle(event, timer)
+                presenter.handle(event, timer)
             except SystemExit:
                 pygame.quit()
                 sys.exit()
 
         while (action := timer.poll()) is not None:
-            controller.handle_action(action)
+            presenter.handle_action(action)
 
-        controller.paint(screen)
+        presenter.paint(screen)
         pygame.display.update()
 
 

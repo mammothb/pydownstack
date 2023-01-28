@@ -89,7 +89,6 @@ class View:  # pylint: disable=too-many-instance-attributes
         self.queue.paint(canvas, self.colors, CellStyle.SOLID)
         self.board.paint(canvas, self.colors, self.styles)
         self.piece.paint(canvas, self.colors, CellStyle.SOLID)
-        # self.ghost.paint(canvas, self.colors, CellStyle.OUTLINE)
         self.ghost.paint(canvas, self.colors, CellStyle.ALPHA)
 
         num_lines = 0
@@ -112,12 +111,10 @@ class View:  # pylint: disable=too-many-instance-attributes
         self.piece.clear()
         self.ghost.clear()
         self.piece.append(
-            ((coord, piece.mino) for coord in piece.get_coords(self.ruleset)),
-            self.geometry.main_cell,
+            ((coord, piece.mino) for coord in piece.coords), self.geometry.main_cell
         )
         self.ghost.append(
-            ((coord, ghost.mino) for coord in ghost.get_coords(self.ruleset)),
-            self.geometry.main_cell,
+            ((coord, ghost.mino) for coord in ghost.coords), self.geometry.main_cell
         )
 
     def set_queue(self, previews: "deque[Mino]", hold: Mino | None) -> None:

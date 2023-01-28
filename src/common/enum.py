@@ -61,7 +61,7 @@ class Rotation(Enum):
 
 
 class Update(Enum):
-    """Controller update instruction types."""
+    """Presenter update instruction types."""
 
     QUEUE = 0
     PIECE = 1

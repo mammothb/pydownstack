@@ -42,14 +42,13 @@ class Stacker:
     def ghost(self) -> Piece:
         """The ghost piece."""
         ghost = copy.deepcopy(self.current)
-        ghost.soft_drop(self.board, self.ruleset)
+        ghost.soft_drop(self.board)
         return ghost
 
     def hard_drop(self) -> None:
         """Drops current piece to the bottom and spawns new piece."""
-        # self.board.soft_drop(self.current)
-        self.current.soft_drop(self.board, self.ruleset)
-        self.board.finalize(self.current, self.ruleset)
+        self.current.soft_drop(self.board)
+        self.board.finalize(self.current)
         self.board.sift()
         self._calculate_cheese()
         self.spawn_from_bag()
@@ -72,16 +71,16 @@ class Stacker:
     def move_horizontal(self, dx: int) -> bool:
         """Moves the piece horizontally."""
         return self.current.try_move(
-            Direction.LEFT if dx < 0 else Direction.RIGHT, self.board, self.ruleset
+            Direction.LEFT if dx < 0 else Direction.RIGHT, self.board
         )
 
     def rotate(self, dr: int) -> bool:
         """Rotates the current piece."""
-        return self.current.try_rotate(dr, self.board, self.ruleset)
+        return self.current.try_rotate(dr, self.board)
 
     def soft_drop(self) -> bool:
         """Drops current piece to the bottom."""
-        return self.current.soft_drop(self.board, self.ruleset) > 0
+        return self.current.soft_drop(self.board) > 0
 
     def spawn_from_bag(self) -> None:
         """Spawns next polymino from bag."""
@@ -102,7 +101,7 @@ class Stacker:
 
     def _spawn(self, mino: "Mino") -> None:
         piece = Piece(self.ruleset, mino)
-        if self.board.has_collision(piece.get_coords(self.ruleset)):
+        if self.board.has_collision(piece.coords):
             print("occupied")
             return
         self.current = piece

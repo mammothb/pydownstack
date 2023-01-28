@@ -10,7 +10,6 @@ from model.line import Line
 
 if TYPE_CHECKING:
     from model.piece import Piece
-    from model.ruleset import Ruleset
 
 
 @dataclass
@@ -46,9 +45,9 @@ class Board:
     def __setitem__(self, coord: Vector2D, mino: Mino) -> None:
         self.lines[coord.y][coord.x] = mino
 
-    def finalize(self, piece: "Piece", ruleset: "Ruleset") -> None:
+    def finalize(self, piece: "Piece") -> None:
         """Sets the piece in the board."""
-        for coord in piece.get_coords(ruleset):
+        for coord in piece.coords:
             self[coord] = piece.mino
 
     def has_collision(self, coords: Iterable[Vector2D]) -> bool:
