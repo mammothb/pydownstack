@@ -52,21 +52,21 @@ class View:  # pylint: disable=too-many-instance-attributes
     num_cols: InitVar[int]
     num_rows: InitVar[int]
 
-    controls: "Controls"
-    font: "Font"
-    geometry: Geometry = field(init=False)
-    queue: Cells = field(init=False)
-    board: Cells = field(init=False)
-    piece: Cells = field(init=False)
-    ghost: Cells = field(init=False)
-    help: list[Label] = field(default_factory=lambda: [], init=False)
+    _controls: "Controls"
+    _font: "Font"
+    _geometry: Geometry = field(init=False)
+    _queue: Cells = field(init=False)
+    _board: Cells = field(init=False)
+    _piece: Cells = field(init=False)
+    _ghost: Cells = field(init=False)
+    _help: list[Label] = field(default_factory=lambda: [], init=False)
 
     def __post_init__(self, num_cols: int, num_rows: int) -> None:
-        self.geometry = Geometry(DEFAULT_SIZE, num_cols, num_rows)
-        self.queue = Cells()
-        self.board = Cells(num_rows)
-        self.piece = Cells(num_rows)
-        self.ghost = Cells(num_rows)
+        self._geometry = Geometry(DEFAULT_SIZE, num_cols, num_rows)
+        self._queue = Cells()
+        self._board = Cells(num_rows)
+        self._piece = Cells(num_rows)
+        self._ghost = Cells(num_rows)
         self._set_control_labels()
 
     def handle(self, event: "Event", timer: "Timer") -> "Action | None":
@@ -83,56 +83,56 @@ class View:  # pylint: disable=too-many-instance-attributes
     def paint(self, canvas: "Surface") -> None:
         """Renders the screen."""
         canvas.fill(0)
-        self.queue.paint(canvas, self.colors, CellStyle.SOLID)
-        self.board.paint(canvas, self.colors, self.styles)
-        self.piece.paint(canvas, self.colors, CellStyle.SOLID)
-        self.ghost.paint(canvas, self.colors, CellStyle.ALPHA)
+        self._queue.paint(canvas, self.colors, CellStyle.SOLID)
+        self._board.paint(canvas, self.colors, self.styles)
+        self._piece.paint(canvas, self.colors, CellStyle.SOLID)
+        self._ghost.paint(canvas, self.colors, CellStyle.ALPHA)
 
         num_lines = 0
-        for label in self.help:
-            label.paint(canvas, self.geometry.get_hud_loc(0, num_lines))
+        for label in self._help:
+            label.paint(canvas, self._geometry.get_hud_loc(0, num_lines))
             num_lines += 1
 
     def render_labels(self) -> None:
         """Renders the texts."""
-        for label in self.help:
-            label.render(self.font)
+        for label in self._help:
+            label.render(self._font)
 
     def set_board(self, board: "Board") -> None:
         """Sets the colors and geometry of the game board."""
-        self.board.clear()
+        self._board.clear()
         for line in board:
-            self.board.append(line, self.geometry.transform("main"))
+            self._board.append(line, self._geometry.transform("main"))
 
     def set_piece(self, piece: "Piece", ghost: "GhostPiece") -> None:
         """Sets the colors and geometry of the current and ghost pieces."""
-        self.piece.clear()
-        self.ghost.clear()
-        self.piece.append(
+        self._piece.clear()
+        self._ghost.clear()
+        self._piece.append(
             ((coord, piece.mino) for coord in piece.coords),
-            self.geometry.transform("main"),
+            self._geometry.transform("main"),
         )
-        self.ghost.append(
+        self._ghost.append(
             ((coord, ghost.mino) for coord in ghost.coords),
-            self.geometry.transform("main"),
+            self._geometry.transform("main"),
         )
 
-    def set_queue(self, previews: list["BasePiece"], hold: "BasePiece | None") -> None:
+    def set_queue(self, previews: "list[BasePiece]", hold: "BasePiece | None") -> None:
         """Sets the colors and geometry of the preview queue."""
-        self.queue.clear()
+        self._queue.clear()
         if hold is not None:
-            self.queue.append(
+            self._queue.append(
                 ((coord, hold.mino) for coord in hold.base_coords),
-                self.geometry.transform("hold"),
+                self._geometry.transform("hold"),
             )
         for i, preview in enumerate(previews):
-            preview_cell = partial(self.geometry.transform("preview"), i)
-            self.queue.append(
+            preview_cell = partial(self._geometry.transform("preview"), i)
+            self._queue.append(
                 ((coord, preview.mino) for coord in preview.base_coords), preview_cell
             )
 
     def _handle_key_down(self, key: int, timer: "Timer") -> "Action | None":
-        action = self.controls.parse(key)
+        action = self._controls.parse(key)
         if action is None:
             return None
         if action.can_das:
@@ -140,23 +140,23 @@ class View:  # pylint: disable=too-many-instance-attributes
         return action
 
     def _handle_key_up(self, key: int, timer: "Timer") -> None:
-        if (action := self.controls.parse(key)) is not None:
+        if (action := self._controls.parse(key)) is not None:
             timer.stop_autorepeat(action)
 
     def _set_control_labels(self) -> None:
         # pylint: disable=line-too-long
         # fmt: off
         labels_and_keys = [
-            ("Left, Right", f"{self.controls.get_key_name(Action.MOVE_LEFT)}, {self.controls.get_key_name(Action.MOVE_RIGHT)}"),
-            ("CCW, CW", f"{self.controls.get_key_name(Action.ROTATE_CCW)}, {self.controls.get_key_name(Action.ROTATE_CW)}"),
-            ("Soft Drop, Hard Drop", f"{self.controls.get_key_name(Action.SOFT_DROP)}, {self.controls.get_key_name(Action.HARD_DROP)}"),
-            ("Hold", self.controls.get_key_name(Action.HOLD)),
-            ("Reset", self.controls.get_key_name(Action.RESET)),
+            ("Left, Right", f"{self._controls.get_key_name(Action.MOVE_LEFT)}, {self._controls.get_key_name(Action.MOVE_RIGHT)}"),
+            ("CCW, CW", f"{self._controls.get_key_name(Action.ROTATE_CCW)}, {self._controls.get_key_name(Action.ROTATE_CW)}"),
+            ("Soft Drop, Hard Drop", f"{self._controls.get_key_name(Action.SOFT_DROP)}, {self._controls.get_key_name(Action.HARD_DROP)}"),
+            ("Hold", self._controls.get_key_name(Action.HOLD)),
+            ("Reset", self._controls.get_key_name(Action.RESET)),
         ]
         # fmt: on
         longest_label = max(labels_and_keys, key=lambda x: len(x[0]))[0]
         label_width = len(longest_label) + 1
 
-        self.help.append(Label("Game Controls:"))
+        self._help.append(Label("Game Controls:"))
         for label, key in labels_and_keys:
-            self.help.append(Label(f"{label:<{label_width}}: {key}"))
+            self._help.append(Label(f"{label:<{label_width}}: {key}"))

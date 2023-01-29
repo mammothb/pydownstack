@@ -13,37 +13,37 @@ if TYPE_CHECKING:
 class DelayedAutoRepeat:
     """Class which repeats loaded action after a delay."""
 
-    delay: "timedelta"
-    period: "timedelta"
-    load: "Action | None" = field(default=None, init=False)
-    trigger_time: "timedelta | None" = field(default=None, init=False)
-
-    def is_loaded(self, action: "Action") -> bool:
-        """Indicates if an action has been loaded."""
-        return self.load == action
+    _delay: "timedelta"
+    _period: "timedelta"
+    _load: "Action | None" = field(default=None, init=False)
+    _trigger_time: "timedelta | None" = field(default=None, init=False)
 
     def start(self, now: "timedelta", action: "Action") -> bool:
         """Loads a different action to be repeated."""
-        if self.is_loaded(action):
+        if self._is_loaded(action):
             return False
-        self.load = action
-        self.trigger_time = now + self.delay
+        self._load = action
+        self._trigger_time = now + self._delay
         return True
 
     def stop(self, action: "Action") -> None:
         """Removes currently loaded action."""
-        if self.is_loaded(action):
-            self.load = None
-            self.trigger_time = None
+        if self._is_loaded(action):
+            self._load = None
+            self._trigger_time = None
 
     def trigger(self, now: "timedelta") -> "Action | None":
         """Triggers loaded action if available and if sufficient time has
         passed.
         """
-        if self.load is None or (
-            self.trigger_time is not None and self.trigger_time > now
+        if self._load is None or (
+            self._trigger_time is not None and self._trigger_time > now
         ):
             return None
-        assert self.trigger_time is not None
-        self.trigger_time += self.period
-        return self.load
+        assert self._trigger_time is not None
+        self._trigger_time += self._period
+        return self._load
+
+    def _is_loaded(self, action: "Action") -> bool:
+        """Indicates if an action has been loaded."""
+        return self._load == action

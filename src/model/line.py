@@ -9,39 +9,34 @@ from common.enum import Mino
 class Line:
     """A line of the board."""
 
-    size: int
-    index: int = field(default=0, init=False)
-    cells: list[Mino] = field(init=False)
+    _size: int
+    _index: int = field(default=0, init=False)
+    _cells: list[Mino] = field(init=False)
 
     def __post_init__(self) -> None:
-        self.cells = [Mino.EMPTY] * self.size
+        self._cells = [Mino.EMPTY] * self._size
 
     def __getitem__(self, index: int) -> Mino:
-        return self.cells[index]
+        return self._cells[index]
 
     def __iter__(self) -> "Line":
-        self.index = 0
+        self._index = 0
         return self
 
     def __next__(self) -> tuple[int, Mino]:
-        if self.index >= self.size:
+        if self._index >= self._size:
             raise StopIteration
-        mino = self.cells[self.index]
-        self.index += 1
-        return self.index - 1, mino
+        mino = self._cells[self._index]
+        self._index += 1
+        return self._index - 1, mino
 
     def __setitem__(self, index: int, mino: Mino) -> None:
-        self.cells[index] = mino
+        self._cells[index] = mino
 
     @property
     def is_full(self) -> bool:
         """Flag to indicate of line is full."""
-        return not any(cell == Mino.EMPTY for cell in self.cells)
-
-    def reset(self) -> None:
-        """Resets a line with empty cells."""
-        for i, _ in enumerate(self.cells):
-            self.cells[i] = Mino.EMPTY
+        return not any(cell == Mino.EMPTY for cell in self._cells)
 
     @classmethod
     def as_garbage(cls, size: int, hole: int) -> "Line":

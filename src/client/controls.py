@@ -17,10 +17,10 @@ class Controls:
     keybinding: InitVar[dict[str, str]]
     handling: InitVar[dict[str, int]]
 
-    action_to_key: dict[Action, int] = field(default_factory=lambda: {}, init=False)
-    key_to_action: dict[int, Action] = field(default_factory=lambda: {}, init=False)
     das: timedelta = field(init=False)
     arr: timedelta = field(init=False)
+    _action_to_key: dict[Action, int] = field(default_factory=lambda: {}, init=False)
+    _key_to_action: dict[int, Action] = field(default_factory=lambda: {}, init=False)
 
     def __post_init__(
         self, keybinding: dict[str, str], handling: dict[str, int]
@@ -28,19 +28,19 @@ class Controls:
         for action, keystroke in keybinding.items():
             action = action.upper()
             key = pygame.key.key_code(keystroke)
-            self.action_to_key[Action[action]] = key
-            self.key_to_action[key] = Action[action]
+            self._action_to_key[Action[action]] = key
+            self._key_to_action[key] = Action[action]
 
         self.das = timedelta(milliseconds=handling["das"])
         self.arr = timedelta(milliseconds=handling["arr"])
 
     def get_key_name(self, action: Action) -> str:
         """Returns the key name for the specified action."""
-        return pygame.key.name(self.action_to_key[action])
+        return pygame.key.name(self._action_to_key[action])
 
     def parse(self, keycode: int) -> Action | None:
         """Parses input keystroke to game action."""
-        return self.key_to_action.get(keycode, None)
+        return self._key_to_action.get(keycode, None)
 
     @classmethod
     def from_config(cls, config_path: Path) -> "Controls":

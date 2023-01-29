@@ -16,12 +16,12 @@ class Bag:
 
     ruleset: InitVar["Ruleset"]
 
-    previews: deque["Mino"] = field(init=False)
-    source: "RandomBag" = field(init=False)
+    previews: "deque[Mino]" = field(init=False)
+    _generator: "RandomBag" = field(init=False)
 
     def __post_init__(self, ruleset) -> None:
         self.previews = deque([], maxlen=ruleset.num_previews)
-        self.source = iter(RandomBag(ruleset.mino_types))
+        self._generator = iter(RandomBag(ruleset.mino_types))
         self._refill(ruleset.num_previews)
 
     @property
@@ -35,29 +35,29 @@ class Bag:
 
     def _refill(self, num_previews: int) -> None:
         while len(self.previews) < num_previews:
-            self.previews.append(next(self.source))
+            self.previews.append(next(self._generator))
 
 
 @dataclass
 class RandomBag:
     """Endless bag of minos which shuffles when a full bag has been read."""
 
-    source: list["Mino"]
-    index: int = field(default=0, init=False)
-    size: int = field(init=False)
+    _source: "list[Mino]"
+    _index: int = field(default=0, init=False)
+    _size: int = field(init=False)
 
     def __post_init__(self):
-        self.size = len(self.source)
-        random.shuffle(self.source)
+        self._size = len(self._source)
+        random.shuffle(self._source)
 
     def __iter__(self) -> "RandomBag":
-        self.index = 0
+        self._index = 0
         return self
 
     def __next__(self) -> "Mino":
-        mino = self.source[self.index]
-        self.index = (self.index + 1) % self.size
-        if self.index == 0:
-            random.shuffle(self.source)
+        mino = self._source[self._index]
+        self._index = (self._index + 1) % self._size
+        if self._index == 0:
+            random.shuffle(self._source)
 
         return mino

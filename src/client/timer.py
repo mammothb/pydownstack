@@ -19,23 +19,23 @@ class Timer:
     arr: InitVar[timedelta]
 
     latest: timedelta = field(init=False)
-    autorepeat: DelayedAutoRepeat = field(init=False)
+    _autorepeat: DelayedAutoRepeat = field(init=False)
 
     def __post_init__(self, das: timedelta, arr: timedelta) -> None:
         self.latest = self._now()
-        self.autorepeat = DelayedAutoRepeat(das, arr)
+        self._autorepeat = DelayedAutoRepeat(das, arr)
 
     def start_autorepeat(self, action: "Action") -> bool:
         """Starts DAS timer."""
-        return self.autorepeat.start(self.latest, action)
+        return self._autorepeat.start(self.latest, action)
 
     def stop_autorepeat(self, action: "Action") -> None:
         """Stops DAS timer."""
-        self.autorepeat.stop(action)
+        self._autorepeat.stop(action)
 
     def poll(self) -> "Action | None":
         """Triggers any loaded actions."""
-        return self.autorepeat.trigger(self.latest)
+        return self._autorepeat.trigger(self.latest)
 
     def update(self) -> None:
         """Updates internal clock."""

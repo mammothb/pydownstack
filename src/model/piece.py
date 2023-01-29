@@ -18,10 +18,10 @@ class BasePiece:
     coordinates."""
 
     mino: Mino
-    _all_coords: list[list["Vector2D"]]
+    _all_coords: "list[list[Vector2D]]"
 
     @property
-    def base_coords(self) -> list["Vector2D"]:
+    def base_coords(self) -> "list[Vector2D]":
         """The base coordinates without considering the origin."""
         return self._all_coords[0]
 
@@ -34,7 +34,7 @@ class GhostPiece(BasePiece):
     origin: "Vector2D"
 
     @property
-    def coords(self) -> Iterable["Vector2D"]:
+    def coords(self) -> "Iterable[Vector2D]":
         """The coordinates occupied by the piece."""
         return (coord + self.origin for coord in self._all_coords[self.rot])
 
@@ -71,7 +71,7 @@ class Piece(GhostPiece):
     ruleset: InitVar["Ruleset"]
 
     _num_rots: int = field(init=False)
-    _kicks: dict[Rotation, dict[int, list["Vector2D"]]] = field(init=False)
+    _kicks: "dict[Rotation, dict[int, list[Vector2D]]]" = field(init=False)
 
     def __init__(self, ruleset: "Ruleset", mino: Mino) -> None:
         all_coords = [ruleset.get_coords(mino, rot) for rot in range(ruleset.num_rots)]
@@ -106,7 +106,7 @@ class Piece(GhostPiece):
                 return True
         return False
 
-    def _get_kicks(self, rotation: Rotation, rot_dst: int) -> list["Vector2D"]:
+    def _get_kicks(self, rotation: Rotation, rot_dst: int) -> "list[Vector2D]":
         """Returns the kick data for the mino at the specified rotation
         configuration.
         """

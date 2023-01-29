@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from common.enum import Action, Update
-from model.stacker import Stacker
 
 if TYPE_CHECKING:
     from pygame.event import Event
@@ -12,13 +11,14 @@ if TYPE_CHECKING:
 
     from client.timer import Timer
     from client.view import View
+    from model.stacker import Stacker
 
 
 @dataclass
 class Presenter:
     """Presenter class."""
 
-    stacker: Stacker
+    stacker: "Stacker"
     view: "View"
 
     def __post_init__(self) -> None:
@@ -51,8 +51,7 @@ class Presenter:
                 self.stacker.hold()
                 instruction = [Update.PIECE, Update.QUEUE]
             case Action.RESET:
-                ruleset = self.stacker.ruleset
-                self.stacker = Stacker(ruleset)
+                self.stacker.reset()
                 instruction = Update.all()
 
         self._update_view(instruction)

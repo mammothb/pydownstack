@@ -21,8 +21,8 @@ if TYPE_CHECKING:
 class Cells:
     """Stores and renders cells in the board."""
 
-    max_row: int = field(default=sys.maxsize)
-    rects: "dict[Mino, list[Rect]]" = field(
+    _max_row: int = field(default=sys.maxsize)
+    _rects: "dict[Mino, list[Rect]]" = field(
         default_factory=lambda: defaultdict(list), init=False
     )
 
@@ -33,14 +33,14 @@ class Cells:
     ) -> None:
         """Adds a rect if it's in a visible row."""
         for coord, mino in cells:
-            if coord.y >= self.max_row:
+            if coord.y >= self._max_row:
                 continue
-            self.rects[mino].append(transform(coord))
+            self._rects[mino].append(transform(coord))
 
     def clear(self) -> None:
         """Clears stored rects."""
-        for key in self.rects:
-            self.rects[key].clear()
+        for key in self._rects:
+            self._rects[key].clear()
 
     def paint(
         self,
@@ -51,7 +51,7 @@ class Cells:
         """Paints the canvas with at the specified rects with the specified
         colors and styles.
         """
-        for mino, rects in self.rects.items():
+        for mino, rects in self._rects.items():
             color = colors[mino]
             style = styles[mino] if isinstance(styles, dict) else styles
             for rect in rects:

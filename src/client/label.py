@@ -1,3 +1,5 @@
+"""Stores and renders texts."""
+
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -8,6 +10,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class Label:
+    """Stores and renders texts."""
+
     text: str
     updated: bool = field(default=True, init=False)
     size: tuple[int, int] | None = field(default=None, init=False)
